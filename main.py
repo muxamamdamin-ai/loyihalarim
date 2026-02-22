@@ -1,6 +1,9 @@
 import telebot
 import sqlite3
 from telebot import types
+import os
+from flask import Flask
+import threading
 TOKEN = "8479798538:AAGM851VKTQFdwEtl1qt9L-sTOsqnlhYFWE"
 bot = telebot.TeleBot(TOKEN)
 def init_db():
@@ -240,8 +243,24 @@ def process_search_step(message):
         bot.send_message(message.chat.id, response, parse_mode="HTML")
     else:
         bot.send_message(message.chat.id, f"Kechirasiz, <b>'{search_term}'</b> nomli operatsion tizim topilmadi. Boshqa nom yozib ko'ring.", parse_mode="HTML")
+# Render uchun kichik web server
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot ishlayapti!"
+
+def run_flask():
+    # Render avtomatik ravishda PORT muhit o'zgaruvchisini beradi
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
 if __name__ == "__main__":
     init_db()
     populate_database()
+    
+    # Web serverni alohida oqimda (thread) ishga tushirish
+    threading.Thread(target=run_flask).start()
+    
     print("Bot ishga tushdi...")
     bot.infinity_polling()
