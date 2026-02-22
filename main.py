@@ -1,25 +1,17 @@
 import telebot
 import sqlite3
 from telebot import types
-
-# Bot tokeningizni shu yerga yozing
 TOKEN = "8479798538:AAGM851VKTQFdwEtl1qt9L-sTOsqnlhYFWE"
 bot = telebot.TeleBot(TOKEN)
-
-# 1. Ma'lumotlar bazasini va jadvallarni yaratish
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    # Foydalanuvchilar jadvali
     cursor.execute('''CREATE TABLE IF NOT EXISTS Users 
                       (user_id INTEGER PRIMARY KEY, username TEXT, status TEXT)''')
-    # ISO tasvirlar jadvali
     cursor.execute('''CREATE TABLE IF NOT EXISTS iso_images 
                       (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, reliability TEXT, video_url TEXT, download_link TEXT)''')
     conn.commit()
     conn.close()
-
-# 2. Bazaga boshlang'ich ma'lumotlarni qo'shish
 def populate_database():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -27,88 +19,98 @@ def populate_database():
     cursor.execute("SELECT COUNT(*) FROM iso_images")
     if cursor.fetchone()[0] == 0:
         iso_list = [
-    # --- OMMABOP VA ODDIY FOYDALANUVCHILAR UCHUN ---
-    ('Linux Mint Cinnamon', 'Juda yuqori (Rasmiy)', 'https://youtu.be/POf5mCs5YgI', 'https://pub.linuxmint.io/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso'),
-    ('Linux Mint XFCE', 'Juda yuqori (Rasmiy)', 'https://youtu.be/ULrJVk4JJ20', 'https://pub.linuxmint.io/stable/22.3/linuxmint-22.3-xfce-64bit.iso'),
-    ('Ubuntu Desktop 24.04', 'Juda yuqori', 'https://youtu.be/fUvXN-BngS4', 'https://releases.ubuntu.com/24.04/ubuntu-24.04.1-desktop-amd64.iso'),
-    ('Zorin OS Core', 'Yuqori', 'https://youtu.be/7Vp9V9T6vWc', 'https://mirrors.edge.kernel.org/zorinos/17/Zorin-OS-17.1-Core-64-bit.iso'),
-    ('Pop!_OS (NVIDIA)', 'Yuqori (Geymerlar uchun)', 'https://youtu.be/pS0POnV9KNo', 'https://iso.pop-os.org/22.04/amd64/nvidia/44/pop-os_22.04_amd64_nvidia_44.iso'),
-    ('Elementary OS', 'O’rtacha', 'https://youtu.be/Xm99S-G7oU0', 'https://elementary.io/latest.iso'),
-    ('Fedora Workstation', 'Yuqori', 'https://youtu.be/Yp04w_S_M_A', 'https://download.fedoraproject.org/pub/fedora/linux/releases/40/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-40-1.1.iso'),
-    ('Manjaro KDE Plasma', 'Yuqori', 'https://youtu.be/5P_IAn6pS7E', 'https://download.manjaro.org/kde/24.0/manjaro-kde-24.0-240513-linux66.iso'),
-    ('Deepin OS', 'O’rtacha (Dizayn)', 'https://youtu.be/1u7u8p_A9oA', 'https://cdimage.deepin.com/releases/23/deepin-desktop-community-23-x86_64.iso'),
-    ('MX Linux', 'Juda yuqori (Barqaror)', 'https://youtu.be/As_FkIom_9I', 'https://mxlinux.org/latest-iso/'),
+    ('Ubuntu Desktop', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+ubuntu+desktop', 'https://ubuntu.com/download/desktop'),
+    ('Linux Mint Cinnamon', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+linux+mint', 'https://linuxmint.com/download.php'),
+    ('Zorin OS', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+zorin+os', 'https://zorin.com/os/download/'),
+    ('Pop!_OS', 'Yuqori (Geymerlar)', 'https://www.youtube.com/results?search_query=how+to+install+pop+os', 'https://pop.system76.com/'),
+    ('Fedora Workstation', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+fedora+workstation', 'https://fedoraproject.org/workstation/download/'),
+    ('Manjaro Linux', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+manjaro+linux', 'https://manjaro.org/download/'),
+    ('Elementary OS', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+elementary+os', 'https://elementary.io/'),
+    ('Deepin OS', 'O’rtacha (Dizayn)', 'https://www.youtube.com/results?search_query=how+to+install+deepin+os', 'https://www.deepin.org/en/download/'),
+    ('MX Linux', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+mx+linux', 'https://mxlinux.org/download-links/'),
+    ('EndeavourOS', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+endeavouros', 'https://endeavouros.com/latest-release/'),
+    ('Garuda Linux', 'Yuqori (Geymerlar)', 'https://www.youtube.com/results?search_query=how+to+install+garuda+linux', 'https://garudalinux.org/downloads.html'),
+    ('Nobara Linux', 'Yuqori (Geymerlar)', 'https://www.youtube.com/results?search_query=how+to+install+nobara+linux', 'https://nobaraproject.org/download-nobara/'),
 
     # --- KUCHSIZ KOMPYUTERLAR UCHUN (LIGHTWEIGHT) ---
-    ('Lubuntu', 'Yuqori', 'https://youtu.be/vS_M2p-u5rY', 'https://cdimage.ubuntu.com/lubuntu/releases/24.04/release/lubuntu-24.04-desktop-amd64.iso'),
-    ('Linux Lite', 'Yuqori', 'https://youtu.be/V6E98Ie-E8M', 'https://osdn.net/dl/linuxlite/linux-lite-7.0-64bit.iso'),
-    ('Puppy Linux', 'O’rtacha', 'https://youtu.be/L83pY6v9lKk', 'https://distro.ibiblio.org/puppylinux/puppy-fossa/fossapup64-9.5.iso'),
-    ('AntiX Linux', 'Yuqori', 'https://youtu.be/96_S_98K3rU', 'https://antixlinux.com/download/'),
-    ('Peppermint OS', 'O’rtacha', 'https://youtu.be/wXhK-y_oF4M', 'https://peppermintos.com/download/'),
-    ('Bodhi Linux', 'O’rtacha', 'https://youtu.be/m9_3E-m5R7c', 'https://www.bodhilinux.com/download/'),
-    ('Tiny Core Linux', 'Past (Faqat mutaxassislar uchun)', 'https://youtu.be/1mE-R_87qis', 'http://tinycorelinux.net/15.x/x86_64/release/CorePure64-15.0.iso'),
-    ('Xubuntu', 'Yuqori', 'https://youtu.be/S_B7_P7R7vM', 'https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04-desktop-amd64.iso'),
+    ('Lubuntu', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+lubuntu', 'https://lubuntu.me/downloads/'),
+    ('Xubuntu', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+xubuntu', 'https://xubuntu.org/download/'),
+    ('Ubuntu MATE', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+ubuntu+mate', 'https://ubuntu-mate.org/download/'),
+    ('Linux Lite', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+linux+lite', 'https://www.linuxliteos.com/download.php'),
+    ('Peppermint OS', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+peppermint+os', 'https://peppermintos.com/'),
+    ('Bodhi Linux', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+bodhi+linux', 'https://www.bodhilinux.com/download/'),
+    ('antiX Linux', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+antix+linux', 'https://antixlinux.com/download/'),
+    ('Puppy Linux', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+puppy+linux', 'https://puppylinux.com/index.html#download'),
+    ('Tiny Core Linux', 'Past', 'https://www.youtube.com/results?search_query=how+to+install+tiny+core+linux', 'http://tinycorelinux.net/downloads.html'),
+    ('Q4OS', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+q4os', 'https://q4os.org/downloads1.html'),
 
-    # --- KIBERXAVFSIZLIK VA TESTLASH UCHUN ---
-    ('Kali Linux', 'Juda yuqori', 'https://youtu.be/L6mN0Xv6_O4', 'https://cdimage.kali.org/kali-2024.2/kali-linux-2024.2-installer-amd64.iso'),
-    ('Parrot Security OS', 'Yuqori', 'https://youtu.be/kP7I8Y6S6M4', 'https://download.parrot.sh/parrot/iso/6.1/Parrot-security-6.1_amd64.iso'),
-    ('BlackArch Linux', 'Past (Qiyin)', 'https://youtu.be/vD5K_6N-Dmg', 'https://blackarch.org/download.html'),
-    ('Tails', 'Yuqori (Anonimlik)', 'https://youtu.be/CAAnmC5_PzY', 'https://tails.net/install/download/index.en.html'),
-    ('Whonix', 'Yuqori', 'https://youtu.be/39uD0U_O-lE', 'https://www.whonix.org/wiki/Download'),
+    # --- KIBERXAVFSIZLIK VA PENTESTING ---
+    ('Kali Linux', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+kali+linux', 'https://www.kali.org/get-kali/'),
+    ('Parrot Security', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+parrot+os', 'https://parrotsec.org/download/'),
+    ('BlackArch Linux', 'Past (Qiyin)', 'https://www.youtube.com/results?search_query=how+to+install+blackarch+linux', 'https://blackarch.org/downloads.html'),
+    ('Tails OS', 'Yuqori (Maxfiylik)', 'https://www.youtube.com/results?search_query=how+to+install+tails+os', 'https://tails.net/install/index.en.html'),
+    ('Whonix', 'Yuqori (Anonimlik)', 'https://www.youtube.com/results?search_query=how+to+install+whonix', 'https://www.whonix.org/wiki/Download'),
+    ('Wifislax', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+wifislax', 'https://www.wifislax.com/'),
+    ('Qubes OS', 'O’rtacha (Maxfiy)', 'https://www.youtube.com/results?search_query=how+to+install+qubes+os', 'https://www.qubes-os.org/downloads/'),
 
-    # --- PROFESSIONAL VA DASTURCHILAR UCHUN ---
-    ('Arch Linux', 'O’rtacha (Qiyin o’rnatish)', 'https://youtu.be/DPLnKs67P_I', 'https://mirrors.edge.kernel.org/archlinux/iso/latest/archlinux-x86_64.iso'),
-    ('Debian 12 Bookworm', 'Juda yuqori', 'https://youtu.be/I7_4G7Sg6Xk', 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.6.0-amd64-netinst.iso'),
-    ('EndeavourOS', 'Yuqori', 'https://youtu.be/mXN-iM2A028', 'https://endeavouros.com/latest-release/'),
-    ('openSUSE Tumbleweed', 'Yuqori', 'https://youtu.be/X0pE7mHj850', 'https://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso'),
-    ('Solus OS', 'O’rtacha', 'https://youtu.be/rNndp97nCfs', 'https://getsol.us/download/'),
-    ('Gentoo Linux', 'Juda past (Ekspertlar)', 'https://youtu.be/V6n0-EwE9gM', 'https://www.gentoo.org/downloads/'),
-    ('Slackware', 'Past (Retro)', 'https://youtu.be/rS8S-M9QoO4', 'http://www.slackware.com/getslack/'),
-    ('AlmaLinux (Server)', 'Yuqori', 'https://youtu.be/p667Ait_U_0', 'https://almalinux.org/get-almalinux/'),
-    ('Rocky Linux (Server)', 'Yuqori', 'https://youtu.be/A9V0uIidA3Y', 'https://rockylinux.org/download'),
+    # --- SERVER VA ENTERPRISE ---
+    ('Debian', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+debian', 'https://www.debian.org/download'),
+    ('Ubuntu Server', 'Juda yuqori', 'https://www.youtube.com/results?search_query=how+to+install+ubuntu+server', 'https://ubuntu.com/download/server'),
+    ('AlmaLinux', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+almalinux', 'https://almalinux.org/get-almalinux/'),
+    ('Rocky Linux', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+rocky+linux', 'https://rockylinux.org/download'),
+    ('CentOS Stream', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+centos+stream', 'https://www.centos.org/centos-stream/'),
+    ('openSUSE Leap', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+opensuse+leap', 'https://get.opensuse.org/leap/'),
+    ('TrueNAS CORE', 'Yuqori (NAS)', 'https://www.youtube.com/results?search_query=how+to+install+truenas+core', 'https://www.truenas.com/download-truenas-core/'),
+    ('Proxmox VE', 'Yuqori (Virtualizatsiya)', 'https://www.youtube.com/results?search_query=how+to+install+proxmox+ve', 'https://www.proxmox.com/en/downloads'),
 
-    # --- NOODATIY VA QIZIQARLI TIZIMLAR ---
-    ('ChromeOS Flex', 'Yuqori', 'https://youtu.be/0p_mD2V6D9o', 'https://chromeenterprise.google/os/chromeosflex/'),
-    ('Android-x86', 'O’rtacha', 'https://youtu.be/tAnp5D8UqC8', 'https://www.android-x86.org/download.html'),
-    ('Garuda Linux', 'O’rtacha (Dizayn)', 'https://youtu.be/u1eT_yM79A4', 'https://garudalinux.org/downloads.html'),
-    ('Nobara Project', 'Yuqori (Gaming)', 'https://youtu.be/tS9tX-OndyA', 'https://nobaraproject.org/download-nobara/'),
-    ('Void Linux', 'O’rtacha', 'https://youtu.be/8I6YV_oY0B0', 'https://voidlinux.org/download/'),
-    ('NixOS', 'O’rtacha (Konfiguratsiya)', 'https://youtu.be/CwfOf7y0C60', 'https://nixos.org/download.html'),
-    ('Haiku OS', 'Past (Eksperimental)', 'https://youtu.be/v_E6QUnG758', 'https://www.haiku-os.org/get-haiku/'),
-    ('FreeBSD', 'O’rtacha (Unix)', 'https://youtu.be/jP_V5k0W_Dk', 'https://www.freebsd.org/where/'),
-    ('ReactOS', 'Past (Windows kloni)', 'https://youtu.be/I9j4_fI6_vE', 'https://reactos.org/download/'),
-    ('Kubuntu', 'Yuqori', 'https://youtu.be/g_p70_m1qS0', 'https://kubuntu.org/getkubuntu/'),
-    ('Ubuntu Budgie', 'Yuqori', 'https://youtu.be/8_Y990Xp_Uo', 'https://ubuntubudgie.org/downloads/'),
-    ('ArcoLinux', 'Yuqori (O’rganish uchun)', 'https://youtu.be/oXn5m26V0V0', 'https://arcolinux.com/downloads/'),
-    ('GhostBSD', 'O’rtacha', 'https://youtu.be/u88rT_rY1Sg', 'https://ghostbsd.org/download'),
-    ('PureOS', 'Yuqori (Xavfsiz)', 'https://youtu.be/mF80vK_1uS0', 'https://pureos.net/download/'),
-    ('Alpine Linux', 'Past (Juda kichik)', 'https://youtu.be/j7v_wV_U-sU', 'https://alpinelinux.org/downloads/'),
-    ('Mageia', 'O’rtacha', 'https://youtu.be/v_vWv_pS-v8', 'https://www.mageia.org/en/downloads/'),
-    ('OpenBSD', 'Yuqori (Xavfsizlik)', 'https://youtu.be/i_G7MhO7e8Q', 'https://www.openbsd.org/ftp.html'),
-    ('Qubes OS', 'O’rtacha (Maxfiy)', 'https://youtu.be/h9T_K_X0D0Y', 'https://www.qubes-os.org/download/'),
+    # --- ADVANCED / PROFESSONAL ---
+    ('Arch Linux', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+arch+linux', 'https://archlinux.org/download/'),
+    ('Gentoo Linux', 'Juda qiyin', 'https://www.youtube.com/results?search_query=how+to+install+gentoo+linux', 'https://www.gentoo.org/downloads/'),
+    ('Slackware', 'Juda qiyin', 'https://www.youtube.com/results?search_query=how+to+install+slackware', 'http://www.slackware.com/getslack/'),
+    ('Void Linux', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+void+linux', 'https://voidlinux.org/download/'),
+    ('NixOS', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+nixos', 'https://nixos.org/download/'),
+    ('Alpine Linux', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+alpine+linux', 'https://alpinelinux.org/downloads/'),
+    ('Clear Linux', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+clear+linux', 'https://clearlinux.org/downloads.html'),
+
+    # --- BSD VA UNIX ---
+    ('FreeBSD', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+freebsd', 'https://www.freebsd.org/where/'),
+    ('OpenBSD', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+openbsd', 'https://www.openbsd.org/faq/faq4.html'),
+    ('NetBSD', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+netbsd', 'https://www.netbsd.org/mirrors/'),
+    ('GhostBSD', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+ghostbsd', 'https://ghostbsd.org/download'),
+    ('DragonFly BSD', 'Qiyin', 'https://www.youtube.com/results?search_query=how+to+install+dragonfly+bsd', 'https://www.dragonflybsd.org/download/'),
+
+    # --- NOODATIY, RETRO VA BOSHQALAR ---
+    ('ChromeOS Flex', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+chrome+os+flex', 'https://chromeenterprise.google/os/chromeosflex/'),
+    ('Android-x86', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+android+x86+on+pc', 'https://www.android-x86.org/download.html'),
+    ('Bliss OS', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+bliss+os', 'https://blissos.org/'),
+    ('PrimeOS', 'O’rtacha (Android gaming)', 'https://www.youtube.com/results?search_query=how+to+install+primeos', 'https://primeos.in/download/'),
+    ('ReactOS', 'Past (Windows klon)', 'https://www.youtube.com/results?search_query=how+to+install+reactos', 'https://reactos.org/download/'),
+    ('Haiku OS', 'Past (BeOS davomchisi)', 'https://www.youtube.com/results?search_query=how+to+install+haiku+os', 'https://www.haiku-os.org/get-haiku/'),
+    ('KDE Neon', 'Yuqori', 'https://www.youtube.com/results?search_query=how+to+install+kde+neon', 'https://neon.kde.org/download'),
+    ('Solus', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+solus+linux', 'https://getsol.us/download/'),
+    ('Mageia', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+mageia', 'https://www.mageia.org/en/downloads/'),
+    ('PCLinuxOS', 'O’rtacha', 'https://www.youtube.com/results?search_query=how+to+install+pclinuxos', 'https://www.pclinuxos.com/?page_id=10'),
+    ('Slax', 'Yuqori (USB uchun)', 'https://www.youtube.com/results?search_query=how+to+install+slax+linux', 'https://www.slax.org/'),
+    ('Porteus', 'Yuqori (USB uchun)', 'https://www.youtube.com/results?search_query=how+to+install+porteus+linux', 'http://www.porteus.org/'),
 ]
         cursor.executemany('''INSERT INTO iso_images (name, reliability, video_url, download_link) 
                               VALUES (?, ?, ?, ?)''', iso_list)
         conn.commit()
     conn.close()
 
-# --- BOT HANDLERLARI ---
-
 @bot.message_handler(commands=['start', 'register'])
-def register(message):
+def register_hendler(message):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT OR IGNORE INTO Users (user_id, username, status) VALUES (?, ?, ?)", 
+        cursor.execute("INSERT INTO Users (user_id, username, status) VALUES (?, ?, ?)", 
                        (message.from_user.id, message.from_user.username, 'registered'))
         conn.commit()
     except Exception as e:
         print(f"Xatolik: {e}")
-    finally:
-        conn.close()
+    conn.close()
     
-    bot.reply_to(message, "Salom! Siz muvaffaqiyatli ro'yxatdan o'tdingiz.\n\nBuyruqlar:\n/view - ISO ro'yxatini ko'rish\n/select - Video qo'llanma\n/download - Yuklab olish")
-
+    bot.reply_to(message, "Salom! Siz muvaffaqiyatli ro'yxatdan o'tdingiz.\n\nBuyruqlar:\n/view - ISO ro'yxatini ko'rish\n/select - Video qo'llanma\n/download - Yuklab olish\n/search - Qidirish uchun")
 @bot.message_handler(commands=['view'])
 def view_images(message):
     conn = sqlite3.connect('database.db')
@@ -118,24 +120,22 @@ def view_images(message):
     conn.close()
     
     if not rows:
-        bot.send_message(message.chat.id, "Hozircha bazada ma'lumot yo'q.")
+        bot.send_message(message.chat.id)
         return
-
-    response = "📂 **Mavjud ISO tasvirlar:**\n\n"
+    response = "<b>Mavjud ISO tasvirlar:</b>\n\n"
     for row in rows:
-        response += f"🆔 ID: {row[0]}\n💿 Nomi: {row[1]}\n✅ Ishonchlilik: {row[2]}\n" + "-"*20 + "\n"
-        if len(response) > 3500: # Telegram limitidan oshib ketmasligi uchun
-            bot.send_message(message.chat.id, response, parse_mode="Markdown")
+        line = f"<b>ID:</b> {row[0]}\n <b>Nomi:</b> {row[1]}\n <b>Ishonchlilik:</b> {row[2]}\n" + "—"*15 + "\n"
+        if len(response) + len(line) > 4000:
+            bot.send_message(message.chat.id, response, parse_mode="HTML")
             response = ""
+        response += line
     
     if response:
-        bot.send_message(message.chat.id, response, parse_mode="Markdown")
-
+        bot.send_message(message.chat.id, response, parse_mode="HTML")
 @bot.message_handler(commands=['select'])
 def select_image(message):
     msg = bot.send_message(message.chat.id, "O'rnatish videosini ko'rish uchun ISO ID raqamini kiriting:")
     bot.register_next_step_handler(msg, process_video_step)
-
 def process_video_step(message):
     iso_id = message.text
     if not iso_id.isdigit():
@@ -149,10 +149,9 @@ def process_video_step(message):
     conn.close()
 
     if res:
-        bot.send_message(message.chat.id, f"🎬 *{res[0]}* o'rnatish qo'llanmasi:\n{res[1]}", parse_mode="Markdown")
+        bot.send_message(message.chat.id, f" <b>{res[0]}</b> o'rnatish qo'llanmasi:\n{res[1]}", parse_mode="HTML")
     else:
         bot.send_message(message.chat.id, "Bunday ID dagi ISO topilmadi.")
-
 @bot.message_handler(commands=['download'])
 def ask_download_id(message):
     msg = bot.send_message(message.chat.id, "Yuklab olish uchun ISO ID raqamini yuboring:")
@@ -218,6 +217,29 @@ def give_usb_advice(message, iso_name):
 
     bot.send_message(message.chat.id, advice, parse_mode="Markdown", reply_markup=types.ReplyKeyboardRemove())
 
+@bot.message_handler(commands=['search'])
+def ask_search_query(message):
+    msg = bot.send_message(message.chat.id, "🔍 Qaysi operatsion tizimni qidiryapsiz? Nomini kiriting (masalan, <i>Ubuntu</i> yoki <i>Mint</i>):", parse_mode="HTML")
+    bot.register_next_step_handler(msg, process_search_step)
+
+def process_search_step(message):
+    search_term = message.text.strip()
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM iso_images WHERE name LIKE ?", (f'%{search_term}%',))
+    results = cursor.fetchall()
+    conn.close()
+
+    if results:
+        response = f"🔍 <b>'{search_term}'</b> bo'yicha qidiruv natijalari:\n\n"
+        for row in results:
+            response += f"🆔 <b>ID:</b> {row[0]} — <b>{row[1]}</b>\n"
+        
+        response += "\n💡 <i>O'rnatish videosi uchun /select, yuklab olish uchun /download tugmasini bosing va ID raqamni kiriting.</i>"
+        bot.send_message(message.chat.id, response, parse_mode="HTML")
+    else:
+        bot.send_message(message.chat.id, f"Kechirasiz, <b>'{search_term}'</b> nomli operatsion tizim topilmadi. Boshqa nom yozib ko'ring.", parse_mode="HTML")
 if __name__ == "__main__":
     init_db()
     populate_database()
